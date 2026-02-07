@@ -1,6 +1,6 @@
 [package]
 name = "git-worktree-refresh"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 description = "Scan directories for git repos, fetch remotes in parallel, show worktree behind/ahead status"
 
@@ -16,3 +16,7 @@ owo-colors = { version = "4", features = ["supports-colors"] }
 serde = { version = "1", features = ["derive"] }
 serde_yaml_ng = "0.10"
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "process", "sync", "fs"] }
+
+[build-dependencies]
+clap = { version = "4", features = ["derive"] }
+clap_mangen = "0.2"
