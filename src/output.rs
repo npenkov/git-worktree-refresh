@@ -3,23 +3,28 @@ use owo_colors::Stream::Stdout;
 
 use crate::types::{FetchOutcome, PullResult, RepoKind, RepoStatus};
 
+fn has_worktree_changes(status: &RepoStatus) -> bool {
+    status.worktrees.iter().any(|wt| matches!(wt.ahead_behind, Some((a, b)) if a > 0 || b > 0))
+}
+
 pub fn print_results(statuses: &[RepoStatus], emoji: bool, show_all: bool) {
     let mut shown = 0;
     let mut with_changes = 0;
     let mut errors = 0;
 
     for status in statuses {
-        let has_changes = matches!(status.fetch_outcome, FetchOutcome::Updated { .. });
+        let has_fetch_changes = matches!(status.fetch_outcome, FetchOutcome::Updated { .. });
+        let has_wt_changes = has_worktree_changes(status);
         let has_error = matches!(status.fetch_outcome, FetchOutcome::Error(_));
 
-        if has_changes {
+        if has_fetch_changes || has_wt_changes {
             with_changes += 1;
         }
         if has_error {
             errors += 1;
         }
 
-        if !show_all && !has_changes && !has_error {
+        if !show_all && !has_fetch_changes && !has_wt_changes && !has_error {
             continue;
         }
 
