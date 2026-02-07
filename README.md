@@ -26,6 +26,15 @@ git-worktree-refresh -d ~/src/oss
 
 ## Installation
 
+### Homebrew
+
+```
+brew tap npenkov/tap
+brew install git-worktree-refresh
+```
+
+### From source
+
 ```
 cargo install --path .
 ```
