@@ -44,6 +44,7 @@ cargo install --path .
 ```
 -d, --directories <DIR>   Directories to scan (repeatable)
 -j, --concurrency <N>     Max parallel fetch operations (default: 5)
+    --no-fetch            Skip fetching remotes
     --no-emoji             Disable emoji in output
     --auto-pull            Pull changes into FF-safe worktrees (--ff-only)
 -c, --config <FILE>       Custom config file path
@@ -60,6 +61,7 @@ directories:
   - ~/src/oss
   - ~/src/personal
 concurrency: 5
+fetch: true
 emoji: true
 auto_pull: false
 max_depth: 3
@@ -71,7 +73,7 @@ CLI flags override config file values.
 ## How it works
 
 1. **Discovery** — recursively scans configured directories for git repos. Detects bare repos (has `HEAD` + `refs/` + `objects/`) and non-bare repos (has `.git/` directory). Skips worktree links (`.git` files) and hidden directories.
-2. **Fetch** — runs `git fetch --all --prune` on each repo in parallel, bounded by a concurrency semaphore.
+2. **Fetch** — runs `git fetch --all --prune` on each repo in parallel, bounded by a concurrency semaphore. Can be disabled with `--no-fetch` or `fetch: false` in config.
 3. **Status** — lists worktrees for each repo and checks `ahead/behind` vs upstream using `git rev-list --left-right --count`.
 4. **Auto-pull** (optional) — runs `git pull --ff-only` on worktrees that are behind with no local commits.
 

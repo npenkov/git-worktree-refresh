@@ -23,6 +23,7 @@ pub enum FetchOutcome {
     Updated { refs_updated: usize },
     NoChanges,
     NoRemote,
+    Skipped,
     Error(String),
 }
 
@@ -52,6 +53,7 @@ pub struct RepoStatus {
 pub struct AppConfig {
     pub directories: Vec<PathBuf>,
     pub concurrency: usize,
+    pub fetch: bool,
     pub emoji: bool,
     pub auto_pull: bool,
     pub max_depth: usize,
@@ -63,6 +65,7 @@ impl Default for AppConfig {
         Self {
             directories: Vec::new(),
             concurrency: 5,
+            fetch: true,
             emoji: true,
             auto_pull: false,
             max_depth: 3,

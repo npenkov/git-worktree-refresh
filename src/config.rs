@@ -10,6 +10,7 @@ use crate::types::AppConfig;
 pub struct FileConfig {
     pub directories: Option<Vec<String>>,
     pub concurrency: Option<usize>,
+    pub fetch: Option<bool>,
     pub emoji: Option<bool>,
     pub auto_pull: Option<bool>,
     pub max_depth: Option<usize>,
@@ -49,10 +50,7 @@ pub fn resolve_config(cli: &Cli) -> Result<AppConfig> {
     let mut config = AppConfig::default();
 
     // Load file config
-    let config_path = cli
-        .config
-        .clone()
-        .or_else(default_config_path);
+    let config_path = cli.config.clone().or_else(default_config_path);
 
     if let Some(path) = config_path {
         if let Some(file_cfg) = load_file_config(&path) {
@@ -61,6 +59,9 @@ pub fn resolve_config(cli: &Cli) -> Result<AppConfig> {
             }
             if let Some(c) = file_cfg.concurrency {
                 config.concurrency = c;
+            }
+            if let Some(f) = file_cfg.fetch {
+                config.fetch = f;
             }
             if let Some(e) = file_cfg.emoji {
                 config.emoji = e;
@@ -83,6 +84,9 @@ pub fn resolve_config(cli: &Cli) -> Result<AppConfig> {
     }
     if let Some(c) = cli.concurrency {
         config.concurrency = c;
+    }
+    if cli.no_fetch {
+        config.fetch = false;
     }
     if cli.no_emoji {
         config.emoji = false;

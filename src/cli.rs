@@ -18,6 +18,10 @@ pub struct Cli {
     #[arg(long)]
     pub no_emoji: bool,
 
+    /// Skip fetching remotes
+    #[arg(long)]
+    pub no_fetch: bool,
+
     /// Pull changes into FF-safe worktrees
     #[arg(long)]
     pub auto_pull: bool,

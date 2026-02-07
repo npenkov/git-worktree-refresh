@@ -4,7 +4,10 @@ use owo_colors::Stream::Stdout;
 use crate::types::{FetchOutcome, PullResult, RepoKind, RepoStatus};
 
 fn has_worktree_changes(status: &RepoStatus) -> bool {
-    status.worktrees.iter().any(|wt| matches!(wt.ahead_behind, Some((a, b)) if a > 0 || b > 0))
+    status
+        .worktrees
+        .iter()
+        .any(|wt| matches!(wt.ahead_behind, Some((a, b)) if a > 0 || b > 0))
 }
 
 pub fn print_results(statuses: &[RepoStatus], emoji: bool, show_all: bool) {
@@ -44,7 +47,11 @@ pub fn print_results(statuses: &[RepoStatus], emoji: bool, show_all: bool) {
         summary_prefix,
         total.if_supports_color(Stdout, |t| t.bold()),
         with_changes.if_supports_color(Stdout, |t| t.green()),
-        errors.if_supports_color(Stdout, |t| if errors > 0 { t.red().to_string() } else { t.to_string() })
+        errors.if_supports_color(Stdout, |t| if errors > 0 {
+            t.red().to_string()
+        } else {
+            t.to_string()
+        })
     );
 }
 
@@ -81,6 +88,7 @@ fn print_repo(status: &RepoStatus, emoji: bool) {
         }
         FetchOutcome::NoChanges => " (no changes)".to_string(),
         FetchOutcome::NoRemote => " (no remote)".to_string(),
+        FetchOutcome::Skipped => " (fetch skipped)".to_string(),
         FetchOutcome::Error(e) => format!(
             " {}",
             format!("error: {}", e).if_supports_color(Stdout, |t| t.red())
@@ -121,9 +129,13 @@ fn print_worktree(wt: &crate::types::WorktreeInfo, emoji: bool) {
     let status_str = match wt.ahead_behind {
         Some((0, 0)) => {
             if emoji {
-                " ✅ up to date".if_supports_color(Stdout, |t| t.green()).to_string()
+                " ✅ up to date"
+                    .if_supports_color(Stdout, |t| t.green())
+                    .to_string()
             } else {
-                " up to date".if_supports_color(Stdout, |t| t.green()).to_string()
+                " up to date"
+                    .if_supports_color(Stdout, |t| t.green())
+                    .to_string()
             }
         }
         Some((ahead, behind)) => {
@@ -160,16 +172,17 @@ fn print_worktree(wt: &crate::types::WorktreeInfo, emoji: bool) {
     let pull_str = match &wt.pull_result {
         Some(PullResult::Pulled) => {
             if emoji {
-                " ✨ pulled".if_supports_color(Stdout, |t| t.green()).to_string()
+                " ✨ pulled"
+                    .if_supports_color(Stdout, |t| t.green())
+                    .to_string()
             } else {
-                " (pulled)".if_supports_color(Stdout, |t| t.green()).to_string()
+                " (pulled)"
+                    .if_supports_color(Stdout, |t| t.green())
+                    .to_string()
             }
         }
         Some(PullResult::Failed(e)) => {
-            format!(
-                " pull failed: {}",
-                e.if_supports_color(Stdout, |t| t.red())
-            )
+            format!(" pull failed: {}", e.if_supports_color(Stdout, |t| t.red()))
         }
         None => String::new(),
     };

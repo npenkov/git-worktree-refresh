@@ -10,6 +10,7 @@ mod types;
 
 use anyhow::Result;
 use clap::Parser;
+use types::{FetchOutcome, FetchResult};
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -26,8 +27,18 @@ async fn main() -> Result<()> {
         return Ok(());
     }
 
-    // Fetch all repos in parallel
-    let fetch_results = fetch::fetch_all_repos(repos, config.concurrency).await;
+    let fetch_results = if config.fetch {
+        // Fetch all repos in parallel
+        fetch::fetch_all_repos(repos, config.concurrency).await
+    } else {
+        repos
+            .into_iter()
+            .map(|repo| FetchResult {
+                repo,
+                outcome: FetchOutcome::Skipped,
+            })
+            .collect()
+    };
 
     // Build status with worktree info
     let mut statuses = status::build_repo_statuses(fetch_results).await;
