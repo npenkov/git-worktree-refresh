@@ -15,6 +15,7 @@ pub struct FileConfig {
     pub auto_pull: Option<bool>,
     pub max_depth: Option<usize>,
     pub show_all: Option<bool>,
+    pub verbose: Option<bool>,
 }
 
 fn default_config_path() -> Option<PathBuf> {
@@ -75,6 +76,9 @@ pub fn resolve_config(cli: &Cli) -> Result<AppConfig> {
             if let Some(sa) = file_cfg.show_all {
                 config.show_all = sa;
             }
+            if let Some(v) = file_cfg.verbose {
+                config.verbose = v;
+            }
         }
     }
 
@@ -99,6 +103,9 @@ pub fn resolve_config(cli: &Cli) -> Result<AppConfig> {
     }
     if cli.show_all {
         config.show_all = true;
+    }
+    if cli.verbose {
+        config.verbose = true;
     }
 
     if config.directories.is_empty() {

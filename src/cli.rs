@@ -37,4 +37,8 @@ pub struct Cli {
     /// Show repos even if no changes fetched
     #[arg(long)]
     pub show_all: bool,
+
+    /// Show full git stderr for failed remotes
+    #[arg(short = 'v', long)]
+    pub verbose: bool,
 }

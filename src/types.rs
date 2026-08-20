@@ -18,13 +18,51 @@ pub struct FetchResult {
     pub outcome: FetchOutcome,
 }
 
+/// A single remote that failed to fetch.
+#[derive(Debug, Clone)]
+pub struct RemoteError {
+    pub remote: String,
+    /// First meaningful line of git's stderr, for the one-line summary.
+    pub message: String,
+    /// Full stderr, shown with --verbose.
+    pub detail: String,
+}
+
 #[derive(Debug, Clone)]
 pub enum FetchOutcome {
-    Updated { refs_updated: usize },
+    Updated {
+        refs_updated: usize,
+    },
     NoChanges,
     NoRemote,
     Skipped,
+    /// At least one remote fetched, at least one failed.
+    Partial {
+        refs_updated: usize,
+        failed: Vec<RemoteError>,
+        total_remotes: usize,
+    },
+    /// Every remote failed.
+    Failed {
+        failed: Vec<RemoteError>,
+    },
+    /// The repo could not be inspected at all (e.g. listing remotes failed).
     Error(String),
+}
+
+impl FetchOutcome {
+    /// True when no remote was successfully fetched, so worktree status is stale.
+    pub fn is_stale(&self) -> bool {
+        matches!(self, FetchOutcome::Failed { .. } | FetchOutcome::Error(_))
+    }
+
+    /// True when anything went wrong, including partial failures.
+    pub fn has_error(&self) -> bool {
+        matches!(
+            self,
+            FetchOutcome::Partial { .. } | FetchOutcome::Failed { .. } | FetchOutcome::Error(_)
+        )
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -58,6 +96,7 @@ pub struct AppConfig {
     pub auto_pull: bool,
     pub max_depth: usize,
     pub show_all: bool,
+    pub verbose: bool,
 }
 
 impl Default for AppConfig {
@@ -70,6 +109,7 @@ impl Default for AppConfig {
             auto_pull: false,
             max_depth: 3,
             show_all: false,
+            verbose: false,
         }
     }
 }

@@ -42,8 +42,7 @@ pub async fn fetch_all_repos(
 }
 
 async fn fetch_one(repo: &DiscoveredRepo) -> FetchOutcome {
-    if !git::has_remote(&repo.path, repo.kind).await {
-        return FetchOutcome::NoRemote;
-    }
+    // fetch_all reports NoRemote / Error itself, so a repo whose remotes
+    // cannot even be listed is no longer mistaken for a remote-less repo.
     git::fetch_all(&repo.path, repo.kind).await
 }

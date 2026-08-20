@@ -49,7 +49,7 @@ async fn main() -> Result<()> {
     }
 
     // Print results
-    output::print_results(&statuses, config.emoji, config.show_all);
+    output::print_results(&statuses, config.emoji, config.show_all, config.verbose);
 
     Ok(())
 }

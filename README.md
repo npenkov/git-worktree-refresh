@@ -21,7 +21,11 @@ git-worktree-refresh -d ~/src/oss
   proj1-prod prod ⬇️ 127
   proj1-test test ✅ up to date
 
-📊 Scanned 32 repo(s): 1 with changes, 0 error(s)
+📦 proj2.git (bare) 📥 3 ref(s) updated, ⚠️ 1/2 remotes failed
+     upstream: ssh: Could not resolve hostname github.com: nodename nor servname provided
+  proj2-main main ✅ up to date
+
+📊 Scanned 32 repo(s): 2 with changes, 1 partial, 0 error(s)
 ```
 
 ## Installation
@@ -50,6 +54,7 @@ cargo install --path .
 -c, --config <FILE>       Custom config file path
     --max-depth <N>        Max directory scan depth (default: 3)
     --show-all             Show repos even if no changes fetched
+-v, --verbose             Show full git stderr for failed remotes
 ```
 
 ## Configuration
@@ -66,6 +71,7 @@ emoji: true
 auto_pull: false
 max_depth: 3
 show_all: false
+verbose: false
 ```
 
 CLI flags override config file values.
@@ -73,7 +79,7 @@ CLI flags override config file values.
 ## How it works
 
 1. **Discovery** — recursively scans configured directories for git repos. Detects bare repos (has `HEAD` + `refs/` + `objects/`) and non-bare repos (has `.git/` directory). Skips worktree links (`.git` files) and hidden directories.
-2. **Fetch** — runs `git fetch --all --prune` on each repo in parallel, bounded by a concurrency semaphore. Can be disabled with `--no-fetch` or `fetch: false` in config.
+2. **Fetch** — fetches each repo in parallel, bounded by a concurrency semaphore. Every remote of a repo is fetched individually (`git fetch --prune <remote>`) rather than via `git fetch --all`, so one unreachable remote (a dead fork, a stale `old-origin`) does not hide the ref updates of the remotes that succeeded. Such a repo is reported as *partial*, with one indented line per failed remote; use `-v` for the full git error. Can be disabled with `--no-fetch` or `fetch: false` in config.
 3. **Status** — lists worktrees for each repo and checks `ahead/behind` vs upstream using `git rev-list --left-right --count`.
 4. **Auto-pull** (optional) — runs `git pull --ff-only` on worktrees that are behind with no local commits.
 
